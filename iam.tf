@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "barberia_lambda_role"
+  name = "barberia_lambdas_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -25,7 +25,8 @@ resource "aws_iam_policy" "lambda_dynamo_policy" {
           "dynamodb:PutItem",
           "dynamodb:Query",
           "dynamodb:UpdateItem",
-          "dynamodb:DeleteItem"
+          "dynamodb:DeleteItem",
+          "dynamodb:Scan"
         ]
         Effect   = "Allow"
         Resource = "*"

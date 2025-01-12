@@ -2,6 +2,40 @@ resource "aws_api_gateway_rest_api" "api" {
   name        = "barberia-api"
   description = "API Gateway para la barberia"
 }
+
+#Metodo para obtener clientes
+resource "aws_api_gateway_resource" "clientes_resource" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  path_part   = "clientes"
+}
+
+resource "aws_api_gateway_method" "clientes_method_post" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.clientes_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "clientes_post_integracion" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.clientes_resource.id
+  http_method             = aws_api_gateway_method.clientes_method_post.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.registrar_cliente.invoke_arn
+  
+  request_templates = {
+    "application/json" = <<EOF
+    {
+      "nombre": "$input.json('$.nombre')",
+      "celular": "$input.json('$.celular')",
+      "correo": "$input.json('$.correo')"
+    }
+    EOF
+  }
+}
+
 #Metodos para obtener barberos
 resource "aws_api_gateway_resource" "barberos_resource" {
   rest_api_id = aws_api_gateway_rest_api.api.id
@@ -20,17 +54,17 @@ resource "aws_api_gateway_integration" "barberos_g_integracion" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.barberos_resource.id
   http_method             = aws_api_gateway_method.barberos_method_g.http_method
-  integration_http_method = "GET"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.obtener_barberos.invoke_arn
 
-  depends_on = [aws_api_gateway_method.barberos_method_g]
 }
 # Crear un recurso raíz
 resource "aws_api_gateway_resource" "reservas_resource" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   parent_id   = aws_api_gateway_rest_api.api.root_resource_id
   path_part   = "reserva"
+
 }
 
 # Crear un método (GET) , get reservas
@@ -66,7 +100,7 @@ resource "aws_api_gateway_integration" "reserva_g_integracion" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.reservas_resource.id
   http_method             = aws_api_gateway_method.reserva_method_g.http_method
-  integration_http_method = "GET"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.obtener_reserva.invoke_arn
   request_parameters = {
@@ -79,6 +113,7 @@ resource "aws_api_gateway_integration" "reserva_g_integracion" {
     }
     EOF
   }
+
 }
 
 resource "aws_api_gateway_integration" "reserva_p_integracion" {
@@ -104,7 +139,7 @@ resource "aws_api_gateway_integration" "reserva_d_integracion" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.reservas_resource.id
   http_method             = aws_api_gateway_method.reserva_method_d.http_method
-  integration_http_method = "DELETE"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.eliminar_reserva.invoke_arn
   request_parameters = {
@@ -167,9 +202,9 @@ resource "aws_api_gateway_integration" "reserva_g_cliente_integracion" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.reservas_resource_c.id
   http_method             = aws_api_gateway_method.reserva_method_g_cliente.http_method
-  integration_http_method = "GET"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.obtener_reserva.invoke_arn
+  uri                     = aws_lambda_function.obtener_reservas_cliente.invoke_arn
   request_parameters = {
     "integration.request.querystring.reserva_id" = "method.request.querystring.cliente_id"
   }
@@ -183,7 +218,7 @@ resource "aws_api_gateway_integration" "reserva_g_cliente_integracion" {
 }
 
 # Crear la implementación del API
-resource "aws_api_gateway_deployment" "deployment1" {
+resource "aws_api_gateway_deployment" "deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   stage_name  = "dev"
 

@@ -49,7 +49,8 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.registrar_cliente.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  depends_on = [ aws_lambda_function.registrar_cliente ]
 }
 
 resource "aws_lambda_permission" "api_gateway_permission1" {
@@ -57,40 +58,46 @@ resource "aws_lambda_permission" "api_gateway_permission1" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.obtener_reservas_cliente.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  depends_on = [ aws_lambda_function.obtener_reservas_cliente ]
 }
 resource "aws_lambda_permission" "api_gateway_permission2" {
   statement_id  = "AllowAPIGatewayInvokeAll"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.obtener_reserva.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  depends_on = [ aws_lambda_function.obtener_reserva ]
 }
 resource "aws_lambda_permission" "api_gateway_permission3" {
   statement_id  = "AllowAPIGatewayInvokeAll"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.obtener_barberos.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  depends_on = [ aws_lambda_function.obtener_barberos ]
 }
 resource "aws_lambda_permission" "api_gateway_permission4" {
   statement_id  = "AllowAPIGatewayInvokeAll"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.crear_reserva.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  #depends_on = [ aws_lambda_function.crear_reserva ]
 }
 resource "aws_lambda_permission" "api_gateway_permission5" {
   statement_id  = "AllowAPIGatewayInvokeAll"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.actualizar_reserva.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  depends_on = [ aws_lambda_function.actualizar_reserva ]
 }
 resource "aws_lambda_permission" "api_gateway_permission6" {
   statement_id  = "AllowAPIGatewayInvokeAll"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.eliminar_reserva.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  depends_on = [ aws_lambda_function.eliminar_reserva ]
 }

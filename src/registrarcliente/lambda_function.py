@@ -1,18 +1,20 @@
 import os
 import boto3
 import uuid
+import json
 
 # Inicializar el cliente DynamoDB
 dynamodb = boto3.resource('dynamodb')
-table_name = os.environ.get('TABLE_NAME')
+table_name = os.environ.get('DYNAMO_TABLE')
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     # Extraer los datos del evento
     try:
-        nombre = event['nombre']
-        correo = event['correo']
-        celular = event['celular']
+        body = json.loads(event['body'])
+        nombre = body['nombre']
+        correo = body['correo']
+        celular = body['celular']
     except KeyError as e:
         return {
             "statusCode": 400,

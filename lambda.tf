@@ -3,6 +3,7 @@ resource "aws_lambda_function" "registrar_cliente" {
   runtime       = "python3.12"
   role          = aws_iam_role.lambda_role.arn
   handler       = "lambda_function.lambda_handler"
+  timeout = 10
 
   # Sube el archivo ZIP
   filename      = "src/registrarcliente/lambda_function.zip"

@@ -1,6 +1,6 @@
 import boto3
 import os
-
+import json
 # Inicializar el cliente de DynamoDB
 dynamodb = boto3.resource("dynamodb")
 table_name = os.environ["DYNAMO_TABLE"]
@@ -8,30 +8,23 @@ table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     # Obtener el ID del cliente
-    barbero_id = event.get("barbero_id")
-    
-    if not barbero_id:
-        return {
-            "statusCode": 400,
-            "body": "Falta el ID del cliente (barbero_id)"
-        }
-    
-    # Escanear DynamoDB para buscar todas las barberos con el barbero_id
     try:
-        response = table.scan(
-            FilterExpression="barbero_id = :barbero_id",
-            ExpressionAttributeValues={
-                ":barbero_id": barbero_id
-            }
-        )
-        
-        barberos = response.get("Items", [])
+        # Escanear la tabla para obtener todos los registros
+        response = table.scan()
+        barberos = response.get('Items', [])
+
         return {
-            "statusCode": 200,
-            "body": barberos
+            'statusCode': 200,
+            'body': json.dumps({
+                'message': 'Lista de barberos obtenida exitosamente',
+                'barberos': barberos
+            })
         }
     except Exception as e:
+        print(f"Error al obtener los barberos: {e}")
         return {
-            "statusCode": 500,
-            "body": f"Error al obtener las barberos: {str(e)}"
+            'statusCode': 500,
+            'body': json.dumps({
+                'message': 'Error interno del servidor'
+            })
         }

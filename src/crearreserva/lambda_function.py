@@ -10,9 +10,10 @@ table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     # Datos de entrada de la solicitud
-    cliente_id = event.get("cliente_id")
-    fecha_reserva = event.get("fecha_reserva")
-    barbero_id = event.get("barbero_id")
+    body = event.get("body")
+    cliente_id = body.get("cliente_id")
+    fecha_reserva = body.get("fecha_reserva")
+    barbero_id = body.get("barbero_id")
     
     if not cliente_id or not fecha_reserva or not barbero_id:
         return {

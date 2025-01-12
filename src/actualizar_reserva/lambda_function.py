@@ -1,6 +1,7 @@
 import boto3
 import os
 from datetime import datetime
+import json
 
 # Inicializar el cliente de DynamoDB
 dynamodb = boto3.resource("dynamodb")
@@ -9,9 +10,10 @@ table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     # Datos de entrada de la solicitud
-    reserva_id = event.get("reserva_id")
-    nuevo_barbero = event.get("barbero_id")
-    nueva_fecha_reserva = event.get("fecha_reserva")
+    body = json.loads(event["body"])
+    reserva_id = body.get("reserva_id")
+    nuevo_barbero = body.get("barbero_id")
+    nueva_fecha_reserva = body.get("fecha_reserva")
     
     if not reserva_id or not nueva_fecha_reserva or not nuevo_barbero:
         return {

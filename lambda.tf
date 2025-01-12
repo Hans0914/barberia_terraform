@@ -1,4 +1,4 @@
-resource "aws_lambda_function" "lambda" {
+resource "aws_lambda_function" "registrar_cliente" {
   function_name = "barberia_registrar_cliente"
   runtime       = "python3.12"
   role          = aws_iam_role.lambda_role.arn

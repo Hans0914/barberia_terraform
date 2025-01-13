@@ -12,7 +12,6 @@ resource "aws_lambda_function" "registrar_cliente" {
   environment {
     variables = {
       DYNAMO_TABLE = aws_dynamodb_table.clientes_table.name
-      barbero_table = aws_dynamodb_table.barbero_table.name
     }
   }
 }
@@ -103,6 +102,7 @@ resource "aws_lambda_function" "obtener_reservas_cliente" {
   environment {
     variables = {
       DYNAMO_TABLE = aws_dynamodb_table.reservas_table.name
+      BARBERO_TABLE = aws_dynamodb_table.barbero_table.name
     }
   }
 }

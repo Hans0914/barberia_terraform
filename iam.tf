@@ -31,6 +31,16 @@ resource "aws_iam_policy" "lambda_dynamo_policy" {
         Effect   = "Allow"
         Resource = "*"
       },
+      {
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
     ]})
 }
 
@@ -109,4 +119,14 @@ resource "aws_lambda_permission" "api_gateway_permission6" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
   depends_on = [ aws_lambda_function.eliminar_reserva ]
+}
+
+resource "aws_lambda_permission" "allow_s3" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.cargar_bucket.function_name
+  principal     = "s3.amazonaws.com"
+
+  source_arn = aws_s3_bucket.bucket.arn
+  depends_on = [ aws_lambda_function.cargar_bucket ]
 }

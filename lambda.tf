@@ -137,3 +137,19 @@ resource "aws_lambda_function" "obtener_barberos" {
     }
   }
 }
+
+resource "aws_lambda_function" "cargar_bucket" {
+  function_name = "cargar_bucket"
+  runtime       = "python3.12"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "lambda_function.lambda_handler"
+
+  filename         = ("src/bucket/lambda_function.zip")
+  source_code_hash = filebase64sha256("src/bucket/lambda_function.zip")
+
+  environment {
+    variables = {
+      DYNAMO_TABLE = aws_dynamodb_table.regresion_table.name
+    }
+  }
+  }

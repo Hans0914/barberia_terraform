@@ -27,7 +27,7 @@ def lambda_handler(event, context):
             Key={
                 'reserva_id': reserva_id
             },
-            UpdateExpression='set fecha_reserva = :nueva_fecha, barbero_id = :nuevo_barbero',
+            UpdateExpression='set fecha_reserva = :nueva_fecha, id_barbero = :nuevo_barbero',
             ExpressionAttributeValues={
                 ':nueva_fecha': nueva_fecha_reserva,
                 ':nuevo_barbero': nuevo_barbero

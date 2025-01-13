@@ -12,6 +12,17 @@ resource "aws_dynamodb_table" "clientes_table" {
   }
 }
 
+resource "aws_dynamodb_table" "regresion_table" {
+  name         = "regresion_T"
+  hash_key     = "id_regresion"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "id_regresion"
+    type = "S"
+  }
+}
+
 resource "aws_dynamodb_table" "reservas_table" {
   name         = "barberia_reservas"
   hash_key     = "reserva_id"

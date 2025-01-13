@@ -53,6 +53,15 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   depends_on = [ aws_lambda_function.registrar_cliente ]
 }
 
+resource "aws_lambda_permission" "api_gateway_permission12" {
+  statement_id  = "AllowAPIGatewayInvokeAll"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.obtener_cliente.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  depends_on = [ aws_lambda_function.obtener_cliente ]
+}
+
 resource "aws_lambda_permission" "api_gateway_permission1" {
   statement_id  = "AllowAPIGatewayInvokeAll"
   action        = "lambda:InvokeFunction"

@@ -181,6 +181,36 @@ resource "aws_api_gateway_integration" "reserva_update_integracion" {
   }
 }
 
+#Metodo para obtener el cliente por celular
+resource "aws_api_gateway_method" "reserva_cliente_g_celular" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.clientes_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+  request_parameters = {
+    "method.request.querystring.celular" = true
+  }
+}
+
+resource "aws_api_gateway_integration" "reserva_g_celular_integracion" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.clientes_resource.id
+  http_method             = aws_api_gateway_method.reserva_cliente_g_celular.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.obtener_cliente.invoke_arn
+  request_parameters = {
+    "integration.request.querystring.celular" = "method.request.querystring.celular"
+  }
+  request_templates = {
+    "application/json" = <<EOF
+    {
+      "celular": "$input.params('celular')"
+    }
+    EOF
+  }
+}
+
 #Metodos necesarios para la busqueda por cliente
 resource "aws_api_gateway_resource" "reservas_resource_c" {
   rest_api_id = aws_api_gateway_rest_api.api.id
@@ -218,7 +248,7 @@ resource "aws_api_gateway_integration" "reserva_g_cliente_integracion" {
 }
 
 # Crear la implementación del API
-resource "aws_api_gateway_deployment" "deployment" {
+resource "aws_api_gateway_deployment" "deployment1" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   stage_name  = "dev"
 

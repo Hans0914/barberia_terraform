@@ -1,46 +1,51 @@
 import boto3
 import os
-from datetime import datetime
 import json
 
 # Inicializar el cliente de DynamoDB
 dynamodb = boto3.resource('dynamodb')
 table_name = os.environ['DYNAMO_TABLE']
+barbero_table = os.environ['BARBERO_TABLE']
 table = dynamodb.Table(table_name)
+table_barbero = dynamodb.Table(barbero_table)
 
 def lambda_handler(event, context):
-    # Datos de entrada de la solicitud
-    body = json.loads(event['body'])
-    reserva_id = body['reserva_id']
-    nuevo_barbero = body['barbero_id']
-    nueva_fecha_reserva = body['fecha_reserva']
+    # Obtener el ID del cliente
+    query_params = event['queryStringParameters']
+    cliente_id = query_params['cliente_id']
     
-    if not reserva_id or not nueva_fecha_reserva or not nuevo_barbero:
+    if not cliente_id:
         return {
             'statusCode': 400,
-            'body': json.dumps('Faltan datos requeridos: reserva_id o fecha_reserva o barbero_id')
+            'body': json.dumps('Falta el ID del cliente (cliente_id)')
         }
-
-    # Actualizar la reserva en DynamoDB
+    
+    # Escanear DynamoDB para buscar todas las reservas con el cliente_id
     try:
-        response = table.update_item(
-            Key={
-                'reserva_id': reserva_id
-            },
-            UpdateExpression='set fecha_reserva = :nueva_fecha, barbero_id = :nuevo_barbero',
+        response = table.scan(
+            FilterExpression='cliente_id = :cliente_id',
             ExpressionAttributeValues={
-                ':nueva_fecha': nueva_fecha_reserva,
-                ':nuevo_barbero': nuevo_barbero
-            },
-            ReturnValues='UPDATED_NEW'
+                ':cliente_id': cliente_id
+            }
         )
         
+        reservas = response.get('Items', [])
+
+        reservas_response = []
+        # Obtener los nombres de los barberos asociados a las reservas
+        for reserva in reservas:
+            barbero_id = reserva['id_barbero']
+            barbero_response = table_barbero.get_item(Key={'barbero_id': barbero_id})
+            barbero = barbero_response.get('Item', {})
+            
+            reserva["nombre_barbero"] = barbero.get('nombre', 'Barbero no encontrado')
+            reservas_response.append(reserva)
         return {
             'statusCode': 200,
-            'body': json.dumps(f'Reserva actualizada exitosamente: {response['Attributes']}')
+            'body': json.dumps(reservas_response) if reservas_response else json.dumps('No se encontraron reservas')
         }
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps(f'Error al actualizar la reserva: {str(e)}')
+            'body': json.dumps(f'Error al obtener las reservas: {str(e)}')
         }

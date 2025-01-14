@@ -37,7 +37,7 @@ def lambda_handler(event, context):
         
         return {
             'statusCode': 200,
-            'body': json.dumps(f'Reserva actualizada exitosamente: {response['Attributes']}')
+            'body': json.dumps(f'Reserva actualizada exitosamente')
         }
     except Exception as e:
         return {

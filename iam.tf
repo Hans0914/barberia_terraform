@@ -41,6 +41,14 @@ resource "aws_iam_policy" "lambda_dynamo_policy" {
         Effect   = "Allow"
         Resource = "*"
       },
+       {
+        # Permisos para usar la capa Lambda
+        Action = [
+          "lambda:GetLayerVersion"
+        ]
+        Effect = "Allow"
+        Resource = "arn:aws:lambda:us-east:490004613297:layer:lambda_layer:*"
+      }
     ]})
 }
 

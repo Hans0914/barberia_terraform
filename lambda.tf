@@ -147,9 +147,30 @@ resource "aws_lambda_function" "cargar_bucket" {
   filename         = ("src/bucket/lambda_function.zip")
   source_code_hash = filebase64sha256("src/bucket/lambda_function.zip")
 
+  layers = [ aws_lambda_layer_version.numpy_layer_1.arn ]
+
   environment {
     variables = {
       DYNAMO_TABLE = aws_dynamodb_table.regresion_table.name
     }
   }
   }
+
+# Crear layer 
+
+data "archive_file" "lambda_layer_zip" {
+  type        = "zip"
+  source_dir  = "src/layers/python"
+  output_path = "src/layers/python.zip"
+}
+
+resource "aws_lambda_layer_version" "numpy_layer_1" {
+  layer_name          = "lambda_layer"
+  description         = "Layer with NumPy and Pandas"
+  compatible_runtimes = ["python3.11", "python3.12"] # Agrega las versiones que necesites
+  filename            = data.archive_file.lambda_layer_zip.output_path
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
